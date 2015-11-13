@@ -121,6 +121,8 @@
             edge.info2 = [edgeJson objectForKey:@"infoFromNode2"];
             edge.parentLayer = layer;
             [layer.edges setObject:edge forKey:edge.edgeID];
+            // load POI information
+            
         }
         
         // get neighbor information from all nodes and edges
@@ -142,6 +144,10 @@
         [_layers setObject:layer forKey:layer.zIndex];
     }
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
+- loadPOIFromEdgeJSON:(NSDictionary *)edgeJson {
+    
 }
 
 - (NSArray *)findShortestPathFromCurrentLocation:(NavLocation *)curLocation toNodeWithName:(NSString *)toNodeName{

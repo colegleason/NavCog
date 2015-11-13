@@ -49,6 +49,7 @@ enum EdgeType {EDGE_NORMAL, EDGE_NON_NAVIGATIONAL};
 @property (strong, nonatomic) NSString *info1; // information needed when coming from node 1
 @property (strong, nonatomic) NSString *info2; // information needed when coming from node 2
 @property (strong, nonatomic) NavLayer *parentLayer;
+@property (strong, nonatomic) NSMutableDictionary *pois;
 
 - (void)initLocalization;
 - (void)setLocalizationWithDataString:(NSString *)dataStr;
