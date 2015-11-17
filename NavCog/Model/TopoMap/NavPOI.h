@@ -15,7 +15,7 @@
 
 @class NavLocation;
 
-enum POISide {POI_LEFT, POI_RIGHT};
+enum POISide {POI_LEFT, POI_RIGHT, POI_ON};
 
 @interface NavPOI : NSObject
 
@@ -26,6 +26,7 @@ enum POISide {POI_LEFT, POI_RIGHT};
 @property (nonatomic) enum POISide side;
 
 - (NavPOI *)clone;
+- (NSString *)getSpeechText;
 
 @end
 

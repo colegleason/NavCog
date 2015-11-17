@@ -122,7 +122,32 @@
             edge.parentLayer = layer;
             [layer.edges setObject:edge forKey:edge.edgeID];
             // load POI information
-            
+            edge.pois = [[NSMutableDictionary alloc] init];
+            NSDictionary *poisJson = [edgeJson objectForKey:@"pois"];
+            if (poisJson != nil) {
+            for (NSString *poiID in [poisJson allKeys]) {
+                NSDictionary *poiJson = [poisJson objectForKey:poiID];
+                NavPOI *poi = [[NavPOI alloc] init];
+                poi.poiID = [poiJson objectForKey:@"id"];
+                poi.name = [poiJson objectForKey:@"name"];
+                poi.poiDescription = [poiJson objectForKey:@"description"];
+                NSString *side = [poiJson objectForKey:@"side"];
+                
+                if ([side isEqualToString:@"left"]) {
+                    poi.side = POI_LEFT;
+                } else if ([side isEqualToString:@"right"]) {
+                    poi.side = POI_RIGHT;
+                } else if ([side isEqualToString:@"on"]) {
+                    poi.side = POI_ON;
+                }
+                poi.location = [[NavLocation alloc] init];
+                poi.location.layerID = layer.zIndex;
+                poi.location.edgeID = edgeID;
+                poi.location.xInEdge = ((NSNumber *)[poiJson objectForKey:@"x"]).intValue;
+                poi.location.yInEdge = ((NSNumber *)[poiJson objectForKey:@"y"]).intValue;
+                [edge.pois setObject:poi forKey:poi.poiID];
+            }
+            }
         }
         
         // get neighbor information from all nodes and edges
@@ -146,9 +171,6 @@
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 
-- loadPOIFromEdgeJSON:(NSDictionary *)edgeJson {
-    
-}
 
 - (NSArray *)findShortestPathFromCurrentLocation:(NavLocation *)curLocation toNodeWithName:(NSString *)toNodeName{
     NavEdge *curEdge = [self getEdgeFromLayer:curLocation.layerID withEdgeID:curLocation.edgeID];

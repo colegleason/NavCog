@@ -22,6 +22,7 @@
 
 #import "NavLayer.h"
 #import "NavNeighbor.h"
+#import "NavPOI.h"
 #import <Foundation/Foundation.h>
 
 @interface NavLocation : NSObject

@@ -22,4 +22,20 @@
     return poi;
 }
 
+- (NSString *)getSpeechText {
+    // TODO i18n
+    switch (_side) {
+        case POI_LEFT:
+            return [NSString stringWithFormat:@"%@ on left", _name];
+            break;
+        case POI_RIGHT:
+            return [NSString stringWithFormat:@"%@ on right", _name];
+            break;
+        case POI_ON:
+            default:
+            return [NSString stringWithFormat:@"%@ ahead", _name];
+            break;
+    }
+}
+
 @end

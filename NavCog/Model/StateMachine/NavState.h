@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "NavNeighbor.h"
+#import "NavPOI.h"
 #import "NavSoundEffects.h"
 
 enum StateType {STATE_TYPE_WALKING, STATE_TYPE_TRANSITION};

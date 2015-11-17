@@ -28,6 +28,8 @@
 #import "NavNotificationSpeaker.h"
 #import "NavLog.h"
 
+#define POI_ANNOUNCE_THRESHOLD 5.0
+
 @interface NavState ()
 
 @property (nonatomic) Boolean bstarted;
@@ -35,6 +37,7 @@
 @property (nonatomic) Boolean did40feet;
 @property (nonatomic) Boolean didApproaching;
 @property (nonatomic) Boolean didTrickyNotification;
+@property (nonatomic) NSMutableSet* completedPOIs;
 @property (nonatomic) int longDistAnnounceCount;
 @property (nonatomic) int targetLongDistAnnounceCount;
 @property (strong, nonatomic) NSTimer *audioTimer;
@@ -79,6 +82,7 @@
         _isTricky = false;
         _didTrickyNotification = false;
         _closestDist = INT_MAX;
+        _completedPOIs = [[NSMutableSet alloc] init];
     }
     return self;
 }
@@ -99,7 +103,7 @@
         if (_type == STATE_TYPE_WALKING && _walkingEdge.len < 40) {
             _did40feet = true;
         }
-        
+
         // if the distance is less than 30, then it's not necessary to announce 20
         if (_type == STATE_TYPE_WALKING && _walkingEdge.len <= 20) {
             _didApproaching = true;
@@ -109,7 +113,7 @@
         } else {
             [_walkingEdge initLocalization];
         }
-        
+
         [self speakInstructionImmediately:_stateStartInfo];
         if (_type == STATE_TYPE_TRANSITION || isClickEnabled) {
             _audioTimer = [NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(playClickSound) userInfo:nil repeats:YES];
@@ -136,7 +140,7 @@
     } else {
         pos = [_targetEdge getCurrentPositionInEdgeUsingBeacons:beacons];
     }
-    
+
     NSMutableArray *data = [[NSMutableArray alloc] init];
     NavEdge *edge = _type == STATE_TYPE_WALKING ? _walkingEdge : _targetEdge;
     [data addObject:[NSNumber numberWithFloat:ABS(pos.y - _ty)]];
@@ -146,8 +150,7 @@
     [data addObject:[NSNumber numberWithFloat:pos.y]];
     [data addObject:[NSNumber numberWithFloat:pos.knndist]];
     [NavLog logArray:data withType:@"CurrentPosition"];
-    
-    
+
     //float dist = sqrtf((pos.x - _tx) * (pos.x - _tx) + (pos.y - _ty) * (pos.y - _ty)); // use this if you use 2d
     float dist = ABS(pos.y - _ty); // use this if you use 1d, x has no affects
     if (dist < 50 && _isTricky && !_didTrickyNotification) {
@@ -176,7 +179,16 @@
 
     float threshold = 5;
     if (_type == STATE_TYPE_WALKING) {
+        for (NavPOI *poi in [_walkingEdge.pois allValues]) {
+            if (![_completedPOIs containsObject:poi.poiID] &&
+                ABS(pos.y - poi.location.yInEdge) <POI_ANNOUNCE_THRESHOLD) {
+                [NavNotificationSpeaker speakImmediately:[poi getSpeechText]];
+                [_completedPOIs addObject:poi.poiID];
+            }
+        }
+
         NSString *distFormat = NSLocalizedString([self isMeter]?@"meterFormat":@"feetFormat", @"Use to express a distance in feet");
+
         // if you're walking, check distance to target node
         if (dist < _preAnnounceDist) {
             if (dist > 40.0) { // announce every 30 feet
@@ -241,7 +253,7 @@
         pos.knndist = (pos.knndist - _targetEdge.minKnnDist) / (_targetEdge.maxKnnDist - _targetEdge.minKnnDist);
         pos.knndist = pos.knndist < 0 ? 0 : pos.knndist;
         pos.knndist = pos.knndist > 1 ? 1 : pos.knndist;
-        
+
         NSLog(@"type=%d y=%f knnDist=%f dist=%f", _type, pos.y, pos.knndist, dist);
 
         if (_targetNode.type == NODE_TYPE_DOOR_TRANSIT || _targetNode.type == NODE_TYPE_STAIR_TRANSIT) {
