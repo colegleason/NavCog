@@ -30,6 +30,8 @@
 #define TREE_NUM 5
 #define SMOOTHING_WEIGHT 0.6
 #define JUMPING_BOUND 3
+#define IGNORE_JUMP_BOUNDING 15
+
 
 using namespace std;
 
@@ -214,18 +216,27 @@ using namespace std;
     }
     
     if (_bStart) {
-        if (result.x - _prePoint.x > JUMPING_BOUND) {
-            result.x = _prePoint.x + JUMPING_BOUND;
-        } else if (result.x - _prePoint.x < -JUMPING_BOUND) {
-            result.x = _prePoint.x - JUMPING_BOUND;
+        // If we haven't localized recently we may have jumped a lot.
+        // In that case, don't enforce jump bunding
+        if (ABS(result.x - _prePoint.x) < IGNORE_JUMP_BOUNDING) {
+            // Otherwise, max the results at the previous point +/-
+            // the jump bounds.
+            if (result.x - _prePoint.x > JUMPING_BOUND) {
+                result.x = _prePoint.x + JUMPING_BOUND;
+            } else if (result.x - _prePoint.x < -JUMPING_BOUND) {
+                result.x = _prePoint.x - JUMPING_BOUND;
+            }
         }
         
-        if (result.y - _prePoint.y > JUMPING_BOUND) {
-            result.y = _prePoint.y + JUMPING_BOUND;
-        } else if (result.y - _prePoint.y < -JUMPING_BOUND) {
-            result.y = _prePoint.y - JUMPING_BOUND;
+        if (ABS(result.y - _prePoint.y) < IGNORE_JUMP_BOUNDING) {
+            if (result.y - _prePoint.y > JUMPING_BOUND) {
+                result.y = _prePoint.y + JUMPING_BOUND;
+            } else if (result.y - _prePoint.y < -JUMPING_BOUND) {
+                result.y = _prePoint.y - JUMPING_BOUND;
+            }
         }
         
+        // Smooth the result with the previous point.
         result.x = result.x * SMOOTHING_WEIGHT + _prePoint.x * (1 - SMOOTHING_WEIGHT);
         result.y = result.y * SMOOTHING_WEIGHT + _prePoint.y * (1 - SMOOTHING_WEIGHT);
         
