@@ -38,6 +38,7 @@
 @property (strong, nonatomic) NSString *fromNodeName;
 @property (strong, nonatomic) NSString *toNodeName;
 @property (strong, nonatomic) UIButton *startNavButton;
+@property (strong, nonatomic) UIButton *exploreButton;
 @property (strong, nonatomic) NSArray *pathNodes;
 @property (nonatomic) Boolean isWebViewLoaded;
 @property (nonatomic) Boolean isSpeechEnabled;
@@ -82,7 +83,7 @@
     float bw = (sw - 3 * bm) / 2;
     float bb = bt + bh;
     float ot = sh - 150;
-    
+
     // buttons
     UIButton *initalizeOriButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [initalizeOriButton addTarget:self action:@selector(initializeOrientation) forControlEvents:UIControlEventTouchUpInside];
@@ -96,7 +97,7 @@
     [initalizeOriButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [initalizeOriButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
     [self.view addSubview:initalizeOriButton];
-    
+
     _startNavButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [_startNavButton addTarget:self action:@selector(startNavigation) forControlEvents:UIControlEventTouchUpInside];
     _startNavButton.frame = CGRectMake(bw + 2 * bm + 1, bt, bw, bh);
@@ -110,8 +111,22 @@
     [_startNavButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
     _startNavButton.enabled = false;
     [self.view addSubview:_startNavButton];
-    
-    // pikcers
+
+    _exploreButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [_exploreButton addTarget:self action:@selector(startExploration) forControlEvents:UIControlEventTouchUpInside];
+    _exploreButton.frame = CGRectMake(bw + 2 * bm + 1, bt, bw, bh);
+    _exploreButton.bounds = CGRectMake(0, 0, bw, bh);
+    _exploreButton.layer.cornerRadius = 3;
+    _exploreButton.backgroundColor = [UIColor clearColor];
+    _exploreButton.layer.borderWidth = 2.0;
+    _exploreButton.layer.borderColor = [UIColor blackColor].CGColor;
+    [_exploreButton setTitle:NSLocalizedString(@"Explore", @"Button to start exploration") forState:UIControlStateNormal];
+    [_exploreButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [_exploreButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
+    _exploreButton.enabled = false;
+    [self.view addSubview:_exploreButton];
+
+    // pickers
     float ph = (ot - bb - 2 * bm) / 2;
     float pw = (sw - 2 * bm) * 5 / 4;
     float par = 0.8;
@@ -131,7 +146,7 @@
     _toPicker.transform = CGAffineTransformMakeScale(par, par);
     _toPicker.layer.borderWidth = 1;
     [self.view addSubview:_toPicker];
-    
+
     // labels
     pw = (sw - 2 * bm) * 10 / 9;
     par = 0.9;
@@ -162,7 +177,7 @@
         NavCogChooseMapViewController *mapChooser = [NavCogChooseMapViewController sharedMapChooser];
         [self.view addSubview:mapChooser.view];
     }
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(defaultsChanged:) name:NSUserDefaultsDidChangeNotification object:nil];
 }
 
@@ -183,13 +198,18 @@
 - (void)initializeOrientation {
     [_navMachine initializeOrientation];
     _startNavButton.enabled = true;
+    _exploreButton.enabled = true;
 }
 
 - (void)startNavigation {
     if (_fromNodeName == nil || _toNodeName == nil ||[_fromNodeName isEqualToString:_toNodeName]) {
         return;
     }
-    
+
+    [_navMachine startNavigationOnTopoMap:_topoMap fromNodeWithName:_fromNodeName toNodeWithName:_toNodeName usingBeaconsWithUUID:[_topoMap getUUIDString] andMajorID:[_topoMap getMajorIDString].intValue withSpeechOn:_isSpeechEnabled withClickOn:_isClickEnabled withPOIOn:_isPOIEnabled withFastSpeechOn:_isSpeechFast];
+}
+
+- (void)startExploration {
     [_navMachine startNavigationOnTopoMap:_topoMap fromNodeWithName:_fromNodeName toNodeWithName:_toNodeName usingBeaconsWithUUID:[_topoMap getUUIDString] andMajorID:[_topoMap getMajorIDString].intValue withSpeechOn:_isSpeechEnabled withClickOn:_isClickEnabled withPOIOn:_isPOIEnabled withFastSpeechOn:_isSpeechFast];
 }
 
@@ -306,6 +326,40 @@
     [self.view addSubview:_navLogViewCtrl.view];
 }
 
+// Explore View delegate's methods
+- (void)didTriggerPOIInformation {
+}
+
+- (void)didTriggerStopExploration {
+    [_navFuncViewCtrl.view removeFromSuperview];
+    [_navFuncViewCtrl runCmdWithString:@"stopNavigation()"];
+
+    [_navMachine announceAccessibilityInfo];
+}
+
+- (void)exploreWebViewLoaded {
+    _isWebViewLoaded = true;
+    NSString *setDataCMD = [NSString stringWithFormat:@"setMapData(%@)", _mapDataString];
+    [_navFuncViewCtrl runCmdWithString:setDataCMD];
+    _pathNodes = [_navMachine getPathNodes];
+    NavNode *startNode = [_pathNodes lastObject];
+    NSMutableString *cmd = [[NSMutableString alloc] init];
+    [cmd appendString:@"setStartNode("];
+    [cmd appendFormat:@"%f,", startNode.lat];
+    [cmd appendFormat:@"%f)", startNode.lng];
+    [_navFuncViewCtrl runCmdWithString:cmd];
+    cmd = [[NSMutableString alloc] init];
+    [cmd appendString:@"startNavigation(["];
+    for (int i = (int)[_pathNodes count] - 2; i >= 0; i--) {
+        [cmd appendFormat:@"'%@'", ((NavNode *)[_pathNodes objectAtIndex:i]).nodeID];
+        if (i > 0) {
+            [cmd appendString:@","];
+        }
+    }
+    [cmd appendString:@"])"];
+    [_navFuncViewCtrl runCmdWithString:cmd];
+}
+
 // go to map list table view
 - (IBAction)switchToMapChooseUI:(id)sender {
     NavCogChooseMapViewController *mapChooser = [NavCogChooseMapViewController sharedMapChooser];
@@ -357,7 +411,7 @@
         _fromNodeName = nil;
         _toNodeName = nil;
     }
-    
+
     [_fromPicker reloadAllComponents];
     [_toPicker reloadAllComponents];
     if (_isWebViewLoaded) {
@@ -374,7 +428,7 @@
     [_navLogViewCtrl.view removeFromSuperview];
 
     NSString* documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    
+
     [_navMachine simulateNavigationOnTopoMap:_topoMap usingLogFileWithPath: [documentsPath stringByAppendingPathComponent:logName] usingBeaconsWithUUID:[_topoMap getUUIDString] withSpeechOn:_isSpeechEnabled withClickOn:_isClickEnabled withFastSpeechOn:_isSpeechFast];
 }
 
