@@ -2,7 +2,7 @@
 "3fn-P2-Sz5.accessibilityLabel" = "Speech";
 
 /* Class = "UILabel"; text = "/   Click:"; ObjectID = "8d3-Bj-pJV"; */
-"8d3-Bj-pJV.text" = "/   Click:";
+"8d3-Bj-pJV.text" = "Click:";
 
 /* Class = "UIButton"; normalTitle = "Choose Map"; ObjectID = "FR2-U3-EB5"; */
 "FR2-U3-EB5.normalTitle" = "Choose Map";
@@ -29,7 +29,7 @@
 "ZuU-l0-l4h.text" = "Speech:";
 
 /* Class = "UISwitch"; accessibilityLabel = "Click "; ObjectID = "hCQ-P5-x8I"; */
-"hCQ-P5-x8I.accessibilityLabel" = "Click ";
+"hCQ-P5-x8I.accessibilityLabel" = "Click";
 
 /* Class = "UIButton"; normalTitle = "Help"; ObjectID = "vgl-0E-SXC"; */
 "vgl-0E-SXC.normalTitle" = "Help";

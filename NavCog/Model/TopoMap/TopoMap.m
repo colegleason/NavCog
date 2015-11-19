@@ -121,6 +121,7 @@
             edge.info2 = [edgeJson objectForKey:@"infoFromNode2"];
             edge.parentLayer = layer;
             [layer.edges setObject:edge forKey:edge.edgeID];
+
             // load POI information
             edge.pois = [[NSMutableDictionary alloc] init];
             NSDictionary *poisJson = [edgeJson objectForKey:@"pois"];

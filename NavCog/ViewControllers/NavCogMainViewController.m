@@ -42,6 +42,7 @@
 @property (nonatomic) Boolean isWebViewLoaded;
 @property (nonatomic) Boolean isSpeechEnabled;
 @property (nonatomic) Boolean isClickEnabled;
+@property (nonatomic) Boolean isPOIEnabled;
 @property (nonatomic) Boolean isSpeechFast;
 @property (weak, nonatomic) IBOutlet UIButton *getDataBtn;
 @property (weak, nonatomic) IBOutlet UIButton *logReplayBtn;
@@ -66,6 +67,7 @@
     _toNodeName = nil;
     _isSpeechEnabled = true;
     _isClickEnabled = false;
+    _isPOIEnabled = false;
     _isSpeechFast = true;
     [NavCogChooseMapViewController setMapChooserDelegate:self];
     [NavCogChooseLogViewController setLogChooserDelegate:self];
@@ -188,7 +190,7 @@
         return;
     }
     
-    [_navMachine startNavigationOnTopoMap:_topoMap fromNodeWithName:_fromNodeName toNodeWithName:_toNodeName usingBeaconsWithUUID:[_topoMap getUUIDString] andMajorID:[_topoMap getMajorIDString].intValue withSpeechOn:_isSpeechEnabled withClickOn:_isClickEnabled withFastSpeechOn:_isSpeechFast];
+    [_navMachine startNavigationOnTopoMap:_topoMap fromNodeWithName:_fromNodeName toNodeWithName:_toNodeName usingBeaconsWithUUID:[_topoMap getUUIDString] andMajorID:[_topoMap getMajorIDString].intValue withSpeechOn:_isSpeechEnabled withClickOn:_isClickEnabled withPOIOn:_isPOIEnabled withFastSpeechOn:_isSpeechFast];
 }
 
 // picker delegate's methods
@@ -331,6 +333,10 @@
 
 - (IBAction)clickOnAndOff:(UISwitch *)sender {
     _isClickEnabled = [sender isOn];
+}
+
+- (IBAction)poiOnAndOff:(UISwitch *)sender {
+    _isPOIEnabled = [sender isOn];
 }
 
 // new topo map loaded

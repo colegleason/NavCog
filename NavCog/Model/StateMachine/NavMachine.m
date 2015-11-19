@@ -45,6 +45,7 @@ enum NavigationState {NAV_STATE_IDLE, NAV_STATE_INIT, NAV_STATE_WALKING, NAV_STA
 @property (nonatomic) Boolean logReplay;
 @property (nonatomic) Boolean speechEnabled;
 @property (nonatomic) Boolean clickEnabled;
+@property (nonatomic) Boolean poiEnabled;
 @property (nonatomic) Boolean isStartFromCurrentLocation;
 @property (nonatomic) Boolean isNavigationStarted;
 @property (strong, nonatomic) NSString *destNodeName;
@@ -390,7 +391,7 @@ double limitAngle(double x, double l) { //limits angle change to l
     return [_dateFormatter stringFromDate:[NSDate date]];
 }
 
-- (void)startNavigationOnTopoMap:(TopoMap *)topoMap fromNodeWithName:(NSString *)fromNodeName toNodeWithName:(NSString *)toNodeName usingBeaconsWithUUID:(NSString *)uuidstr andMajorID:(CLBeaconMajorValue)majorID withSpeechOn:(Boolean)speechEnabled withClickOn:(Boolean)clickEnabled withFastSpeechOn:(Boolean)fastSpeechEnabled {
+- (void)startNavigationOnTopoMap:(TopoMap *)topoMap fromNodeWithName:(NSString *)fromNodeName toNodeWithName:(NSString *)toNodeName usingBeaconsWithUUID:(NSString *)uuidstr andMajorID:(CLBeaconMajorValue)majorID withSpeechOn:(Boolean)speechEnabled withClickOn:(Boolean)clickEnabled withPOIOn:(Boolean)POIEnabled withFastSpeechOn:(Boolean)fastSpeechEnabled {
     _logReplay = false;
     [NavLog startLog];
     [NavLog logArray:@[fromNodeName,toNodeName] withType:@"Route"];
@@ -401,7 +402,7 @@ double limitAngle(double x, double l) { //limits angle change to l
     // set UI type (speech and click sound)
     _speechEnabled = speechEnabled;
     _clickEnabled = clickEnabled;
-
+    _poiEnabled = POIEnabled;
     // search a path
     _topoMap = topoMap;
     _pathNodes = nil;
@@ -677,7 +678,7 @@ double limitAngle(double x, double l) { //limits angle change to l
         }
         if (_navState == NAV_STATE_WALKING) {
             if ([beacons count] > 0) {
-                if ([_currentState checkStateStatusUsingBeacons:beacons withSpeechOn:_speechEnabled withClickOn:_clickEnabled]) {
+                if ([_currentState checkStateStatusUsingBeacons:beacons withSpeechOn:_speechEnabled withPOIOn:_poiEnabled withClickOn:_clickEnabled]) {
                     _currentState = _currentState.nextState;
                     if (_currentState == nil) {
                         [_delegate navigationFinished];

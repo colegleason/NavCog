@@ -55,7 +55,7 @@ enum StateType {STATE_TYPE_WALKING, STATE_TYPE_TRANSITION};
 @property (nonatomic) float tx; // x of target node
 @property (nonatomic) float ty; // y of target node
 
-- (Boolean)checkStateStatusUsingBeacons:(NSArray *)beacons withSpeechOn:(Boolean)isSpeechEnabled withClickOn:(Boolean)isClickEnabled;
+- (Boolean)checkStateStatusUsingBeacons:(NSArray *)beacons withSpeechOn:(Boolean)isSpeechEnabled withPOIOn:(Boolean)isPOIenabled withClickOn:(Boolean)isClickEnabled;
 - (void)stopAudios;
 - (void)repeatPreviousInstruction;
 - (void)announceSurroundInfo;

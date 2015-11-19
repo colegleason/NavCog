@@ -97,7 +97,7 @@
     _targetLongDistAnnounceCount = _longDistAnnounceCount;
 }
 
-- (Boolean)checkStateStatusUsingBeacons:(NSArray *)beacons withSpeechOn:(Boolean)isSpeechEnabled withClickOn:(Boolean)isClickEnabled {
+- (Boolean)checkStateStatusUsingBeacons:(NSArray *)beacons withSpeechOn:(Boolean)isSpeechEnabled withPOIOn:(Boolean)isPOIEnabled withClickOn:(Boolean)isClickEnabled {
     if (!_bstarted) {
         _bstarted = true;
         if (_type == STATE_TYPE_WALKING && _walkingEdge.len < 40) {
@@ -179,16 +179,17 @@
 
     float threshold = 5;
     if (_type == STATE_TYPE_WALKING) {
-        for (NavPOI *poi in [_walkingEdge.pois allValues]) {
-            if (![_completedPOIs containsObject:poi.poiID] &&
-                ABS(pos.y - poi.location.yInEdge) <POI_ANNOUNCE_THRESHOLD) {
-                [NavNotificationSpeaker speakImmediately:[poi getSpeechText]];
-                [_completedPOIs addObject:poi.poiID];
+        if (isPOIEnabled) {
+            for (NavPOI *poi in [_walkingEdge.pois allValues]) {
+                if (![_completedPOIs containsObject:poi.poiID] &&
+                    ABS(pos.y - poi.location.yInEdge) <POI_ANNOUNCE_THRESHOLD) {
+                    [NavNotificationSpeaker speakImmediately:[poi getSpeechText]];
+                    [_completedPOIs addObject:poi.poiID];
+                }
             }
         }
 
         NSString *distFormat = NSLocalizedString([self isMeter]?@"meterFormat":@"feetFormat", @"Use to express a distance in feet");
-
         // if you're walking, check distance to target node
         if (dist < _preAnnounceDist) {
             if (dist > 40.0) { // announce every 30 feet
