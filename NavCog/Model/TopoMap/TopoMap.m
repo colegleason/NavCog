@@ -149,8 +149,10 @@
     // then just do the same, not touching the topo map
     if ([curEdge checkValidEndNodeAtLocation:curLocation] != nil) {
         NavNode *node = [curEdge checkValidEndNodeAtLocation:curLocation];
+        NSLog(@"found valid start node: %@", node.name);
         return [self findShortestPathFromNode:node toNodeWithName:toNodeName];
     } else {
+        NSLog(@"creating temporary node");
         // use a tmp node to split the edge into two
         NavNode *tmpNode = [[NavNode alloc] init];
         _tmpNode = tmpNode;
