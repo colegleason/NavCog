@@ -80,7 +80,7 @@
     float bt = 20; // button top
     float bm = 5; // button margin
     float bh = 50; // button height
-    float bw = (sw - 3 * bm) / 2;
+    float bw = (sw - 4 * bm) / 3;
     float bb = bt + bh;
     float ot = sh - 150;
 
@@ -114,7 +114,7 @@
 
     _exploreButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [_exploreButton addTarget:self action:@selector(startExploration) forControlEvents:UIControlEventTouchUpInside];
-    _exploreButton.frame = CGRectMake(bw + 2 * bm + 1, bt, bw, bh);
+    _exploreButton.frame = CGRectMake(2 * bw + 3 * bm + 1, bt, bw, bh);
     _exploreButton.bounds = CGRectMake(0, 0, bw, bh);
     _exploreButton.layer.cornerRadius = 3;
     _exploreButton.backgroundColor = [UIColor clearColor];
