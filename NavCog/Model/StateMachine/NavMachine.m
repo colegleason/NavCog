@@ -641,6 +641,7 @@ double limitAngle(double x, double l) { //limits angle change to l
     [NavLog logBeacons:beacons];
     [self logState];
     _previousLocation = _currentLocation;
+
     // if navigation has not started yet, then init all edge localization
     // otherwise ignore
     _currentLocation = [_topoMap getCurrentLocationOnMapUsingBeacons:beacons withInit:!_isNavigationStarted];

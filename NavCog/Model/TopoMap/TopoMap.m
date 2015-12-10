@@ -526,9 +526,6 @@
             [[NavCogFuncViewController sharedNavCogFuntionViewController] runCmdWithString:cmd];
         }
     }
-    if (minKnnDist < knnThreshold) {
-        return nil;
-    }
     return location;
 }
 
